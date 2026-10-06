@@ -1,0 +1,453 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Halbschriftlich dividieren</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600&display=swap">
+<style>
+/* Layout: eine Spalte auf Karopapier. Blau = Teil 1, Orange = Teil 2, Grün = Ergebnis, überall gleich. */
+:root{
+  --paper:#f2f6fb; --grid:#d9e2ee; --ink:#16233d; --muted:#4d5d78; --card:#ffffff; --line:#c2cee0;
+  --blue:#2557c9; --blue-bg:#dde8fc; --blue-solid:#2f6bf0;
+  --orange:#a85300; --orange-bg:#ffe8c4; --orange-solid:#f08a00;
+  --green:#15704a; --green-bg:#d3f0e1;
+  --bad:#b3261e; --bad-bg:#fde3e0;
+  --btn-bg:#2557c9; --btn-fg:#ffffff;
+  --font-head:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Andika","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111a2c; --grid:#1c2841; --ink:#eaf0fb; --muted:#a6b4cd; --card:#1a2539; --line:#34445f;
+    --blue:#9bbaff; --blue-bg:#1f3466; --blue-solid:#5b8cff;
+    --orange:#ffc27a; --orange-bg:#4a3212; --orange-solid:#ffa733;
+    --green:#82e3b2; --green-bg:#134230;
+    --bad:#ff9d96; --bad-bg:#4a1e1c;
+    --btn-bg:#9bbaff; --btn-fg:#0c1530;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111a2c; --grid:#1c2841; --ink:#eaf0fb; --muted:#a6b4cd; --card:#1a2539; --line:#34445f;
+  --blue:#9bbaff; --blue-bg:#1f3466; --blue-solid:#5b8cff;
+  --orange:#ffc27a; --orange-bg:#4a3212; --orange-solid:#ffa733;
+  --green:#82e3b2; --green-bg:#134230;
+  --bad:#ff9d96; --bad-bg:#4a1e1c;
+  --btn-bg:#9bbaff; --btn-fg:#0c1530;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:18px;
+  line-height:1.55;
+}
+h1,h2,h3{font-family:var(--font-head);font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+.page{max-width:800px;margin-inline:auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+.sec{display:flex;flex-direction:column;gap:16px;min-width:0}
+h1{font-size:clamp(2.1rem,7vw,3.2rem)}
+h2{font-size:1.9rem}
+h3{font-size:1.3rem}
+.lead{font-family:var(--font-head);font-weight:500;font-size:clamp(1.25rem,4vw,1.6rem);line-height:1.3}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+
+/* Farben: Bedeutung bleibt gleich */
+.c1{color:var(--blue);font-weight:700}
+.c2{color:var(--orange);font-weight:700}
+.c3{color:var(--green);font-weight:700}
+.t1{background:var(--blue-bg);color:var(--blue)}
+.t2{background:var(--orange-bg);color:var(--orange)}
+.t3{background:var(--green-bg);color:var(--green)}
+
+.head{display:flex;flex-direction:column;gap:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.legend span{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:.95rem}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.t1 i{background:var(--blue-solid)} .t2 i{background:var(--orange-solid)} .t3 i{background:var(--green)}
+
+/* Wörter */
+.words{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.word{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.word .sym{font-family:var(--font-head);font-weight:600;font-size:1.7rem;min-height:2.6rem;display:flex;align-items:center;gap:6px}
+.word .w{font-family:var(--font-head);font-weight:600;font-size:1.3rem}
+.word .ex{color:var(--muted);font-size:.95rem}
+
+/* Zehnerstangen und Einer */
+.rods{display:inline-flex;align-items:flex-end;gap:4px}
+.rod{display:block;width:14px;height:66px;border-radius:3px;background-color:var(--blue-solid);
+  background-image:repeating-linear-gradient(to bottom,transparent 0 5.6px,rgba(255,255,255,.6) 5.6px 6.6px)}
+.dot{display:block;width:13px;height:13px;border-radius:3px;background:var(--orange-solid)}
+.rods .dot + .dot{margin-left:0}
+.rod.sm{height:44px;width:10px}
+.dot.sm{width:10px;height:10px}
+
+/* Das Bild */
+.bild{display:flex;flex-direction:column;gap:14px}
+.bild-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px}
+.lbl{font-family:var(--font-head);font-weight:600;font-size:1.3rem}
+.arrow{font-family:var(--font-head);font-weight:500;font-size:1.15rem;color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:12px}
+.box{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 12px 8px;border:3px solid var(--line);border-top-color:transparent;border-radius:0 0 12px 12px;min-width:84px}
+.box .rods{min-height:70px}
+.box .tot{font-family:var(--font-head);font-weight:600;font-size:1.35rem}
+
+/* Der Weg */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;list-style:none;margin:0;padding:0;counter-reset:s}
+.step{display:flex;flex-direction:column;gap:8px;counter-increment:s}
+.step::before{content:counter(s);width:2.2rem;height:2.2rem;border-radius:50%;display:grid;place-items:center;font-family:var(--font-head);font-weight:600;font-size:1.2rem;background:var(--ink);color:var(--card)}
+.step .big{font-family:var(--font-head);font-weight:600;font-size:1.5rem}
+.step .demo{font-family:var(--font-head);font-weight:500;font-size:1.25rem;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.tip{display:flex;gap:12px;align-items:flex-start;border-style:dashed}
+.tip b{font-family:var(--font-head);font-weight:600}
+
+/* Rechenbaum */
+.tree{display:grid;gap:4px;text-align:center;font-family:var(--font-head);font-weight:600}
+.tree .top{justify-self:center;font-size:1.9rem;padding:2px 20px;border:2px solid var(--ink);border-radius:10px;background:var(--card)}
+.legs{width:100%;height:30px;display:block}
+.legs line{stroke:var(--muted);stroke-width:2.5;vector-effect:non-scaling-stroke}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;justify-items:center}
+.pair .n{font-size:1.7rem;padding:2px 16px;border-radius:10px;min-width:4rem}
+.pair .eq{font-size:1.2rem;padding:3px 10px;border-radius:10px;white-space:nowrap}
+.pair.gap{margin-top:6px}
+.sum{justify-self:center;font-size:1.5rem;padding:4px 18px;border-radius:10px;margin-top:6px}
+.ex-card{display:flex;flex-direction:column;gap:14px}
+.ex-card h3 small{font-family:var(--font-body);font-weight:400;font-size:.9rem;color:var(--muted);display:block;margin-top:2px}
+.say{margin:0;padding-left:1.4rem;display:flex;flex-direction:column;gap:4px;font-size:1rem}
+.say li::marker{font-weight:700;color:var(--muted)}
+.say-title{font-weight:700;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.note{font-size:.95rem;border-radius:10px;padding:8px 12px;background:var(--orange-bg);color:var(--orange)}
+
+/* Üben */
+.level{display:flex;flex-direction:column;gap:12px}
+.level-head{display:flex;flex-direction:column;gap:2px}
+.level-head p{color:var(--muted)}
+.tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.task{display:flex;flex-direction:column;gap:10px}
+.task-top{display:flex;align-items:center;gap:12px;font-family:var(--font-head);font-weight:600;font-size:1.5rem}
+.task-top .no{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;font-size:1rem;border:2px solid var(--line);color:var(--muted)}
+.line{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-family:var(--font-head);font-weight:500;font-size:1.3rem}
+.line .lab{font-family:var(--font-body);font-size:.95rem;color:var(--muted);min-width:4.6rem}
+.chip{display:inline-block;min-width:3.2rem;text-align:center;padding:2px 10px;border-radius:8px;font-weight:600}
+.chip.empty{opacity:.55}
+.task input{width:4.6rem;font:inherit;font-family:var(--font-head);font-weight:600;font-size:1.3rem;text-align:center;padding:4px 6px;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:8px}
+.task input:focus-visible,.btn:focus-visible,summary:focus-visible{outline:3px solid var(--blue-solid);outline-offset:2px}
+.task input.ok{border-color:var(--green);background:var(--green-bg)}
+.task input.bad{border-color:var(--bad);background:var(--bad-bg)}
+.mark{display:inline-block;width:1.5em;font-weight:700}
+.mark.ok{color:var(--green)} .mark.bad{color:var(--bad)}
+.act{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.btn{font-family:var(--font-body);font-weight:700;font-size:1rem;padding:8px 18px;border-radius:10px;border:2px solid var(--btn-bg);background:var(--btn-bg);color:var(--btn-fg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.fb{font-size:1rem;min-height:1.5em;flex:1 1 180px}
+.fb.ok{color:var(--green);font-weight:700}
+.fb.bad{color:var(--bad)}
+details.hint{font-size:1rem}
+summary{cursor:pointer;font-weight:700;color:var(--blue)}
+
+/* Lehrkraft */
+.teacher details{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 16px}
+.teacher details + details{margin-top:12px}
+.teacher summary{font-family:var(--font-head);font-weight:600;font-size:1.25rem;color:var(--ink)}
+.teacher .body{display:flex;flex-direction:column;gap:10px;padding-top:12px;font-size:1rem}
+.teacher ul,.teacher ol{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:4px}
+.sol{font-variant-numeric:tabular-nums}
+@media (max-width:420px){ body{font-size:17px} }
+@media (prefers-reduced-motion:no-preference){ .task input{transition:background-color .15s,border-color .15s} }
+@media print{
+  body{background:#fff;color:#000}
+  .btn,.act,details.hint{display:none}
+  .card{break-inside:avoid}
+}
+</style>
+
+<main class="page">
+
+  <header class="head">
+    <h1>Halbschriftlich dividieren</h1>
+    <p class="lead">Eine große Aufgabe. Zwei kleine Aufgaben. Dann plus.</p>
+    <div class="legend" aria-label="Farben">
+      <span class="t1"><i></i>Teil 1</span>
+      <span class="t2"><i></i>Teil 2</span>
+      <span class="t3"><i></i>Ergebnis</span>
+    </div>
+  </header>
+
+  <section class="sec" aria-labelledby="h-woerter">
+    <h2 id="h-woerter">Wörter</h2>
+    <div class="words">
+      <div class="card word"><div class="sym">:</div><div class="w">teilen</div><div class="ex">84 : 4<br>„84 geteilt durch 4“</div></div>
+      <div class="card word"><div class="sym"><span class="c1">80</span> | <span class="c2">4</span></div><div class="w">zerlegen</div><div class="ex">84 in 80 und 4</div></div>
+      <div class="card word"><div class="sym">+</div><div class="w">plus</div><div class="ex">20 + 1</div></div>
+      <div class="card word"><div class="sym"><span class="c3">= 21</span></div><div class="w">Ergebnis</div><div class="ex">So viel ist es.</div></div>
+      <div class="card word"><div class="sym" id="w-zehner"></div><div class="w">Zehner</div><div class="ex">1 Stange = 10</div></div>
+      <div class="card word"><div class="sym" id="w-einer"></div><div class="w">Einer</div><div class="ex">1 Würfel = 1</div></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-bild">
+    <h2 id="h-bild">Das Bild</h2>
+    <figure class="card bild" id="bild" style="margin:0" aria-label="84 Plättchen: 8 Zehnerstangen und 4 Einer werden auf 4 Kisten verteilt. In jeder Kiste liegen 2 Stangen und 1 Würfel, das ist 21."></figure>
+  </section>
+
+  <section class="sec" aria-labelledby="h-weg">
+    <h2 id="h-weg">Der Weg</h2>
+    <ol class="steps">
+      <li class="card step">
+        <div class="big">Zerlege.</div>
+        <p>Mache aus der Zahl zwei Teile.</p>
+        <div class="demo"><span>84</span><span>→</span><span class="chip t1">80</span><span class="chip t2">4</span></div>
+      </li>
+      <li class="card step">
+        <div class="big">Teile.</div>
+        <p>Teile jeden Teil einzeln.</p>
+        <div class="demo"><span class="chip t1">80 : 4 = 20</span><span class="chip t2">4 : 4 = 1</span></div>
+      </li>
+      <li class="card step">
+        <div class="big">Plus.</div>
+        <p>Rechne die zwei Ergebnisse plus.</p>
+        <div class="demo"><span class="chip t3">20 + 1 = 21</span></div>
+      </li>
+    </ol>
+    <div class="card tip"><b>Tipp</b><span>Beide Teile musst du im Kopf teilen können. Wenn ein Teil nicht geht: zerlege neu.</span></div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-bsp">
+    <h2 id="h-bsp">Beispiele</h2>
+    <div class="examples" id="examples"></div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-ueben">
+    <h2 id="h-ueben">Üben</h2>
+    <div id="levels" class="sec"></div>
+  </section>
+
+  <section class="sec teacher" aria-labelledby="h-lk">
+    <h2 id="h-lk">Für die Lehrkraft</h2>
+    <div>
+      <details>
+        <summary>Aufbau und Sprachentlastung</summary>
+        <div class="body">
+          <p><b>Ablauf</b></p>
+          <ol>
+            <li>Wörter mit Material zeigen und gemeinsam sprechen.</li>
+            <li>„Das Bild“ mit Zehnerstangen und Einerwürfeln nachlegen und in Kisten verteilen.</li>
+            <li>Beispiele am Rechenbaum mit dem Finger verfolgen und die fünf Sätze nachsprechen.</li>
+            <li>Üben in drei Stufen: Zerlegung gegeben (Zehner und Einer), Zerlegung gegeben (Stufenzahl und Rest), Zerlegung selbst finden.</li>
+          </ol>
+          <p><b>Sprachentlastung</b></p>
+          <ul>
+            <li>Immer dieselben fünf Sätze, nur die Zahlen wechseln.</li>
+            <li>Farben bleiben gleich: blau ist Teil 1, orange ist Teil 2, grün ist das Ergebnis.</li>
+            <li>Zahlen, Symbole und Material tragen die Bedeutung, Text bleibt kurz.</li>
+            <li>Rückmeldung in einem kurzen Satz, mit Zeichen (✓ und ✗), nicht nur mit Farbe.</li>
+          </ul>
+          <p><b>Häufige Stolpersteine</b></p>
+          <ul>
+            <li>Zerlegung ohne Blick auf den Teiler, zum Beispiel 52 = 50 + 2 bei : 4. Kinder fragen sich: „Kann ich beide Teile teilen?“</li>
+            <li>Ergebnisse der Teilaufgaben werden multipliziert statt addiert. Das grüne „Plus“ im Rechenweg stützt hier.</li>
+            <li>Aufgaben mit Rest kommen erst danach.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Lösungen</summary>
+        <div class="body sol" id="loesungen"></div>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var L1 = [[48,4,40,8],[66,3,60,6],[55,5,50,5],[93,3,90,3],[88,2,80,8],[86,2,80,6]];
+  var L2 = [[52,4,40,12],[75,5,50,25],[78,6,60,18],[91,7,70,21],[96,8,80,16]];
+  var L3 = [[84,6,60],[98,7,70],[95,5,50],[108,9,90],[135,5,100]];
+  var EX = [[84,4,80,4,''],[69,3,60,9,''],[52,4,40,12,'50 : 4 geht nicht. Nimm 40 und 12.']];
+
+  function rods(t,o,sm){
+    var s = sm ? ' sm' : '';
+    return '<span class="rods" aria-hidden="true">' + new Array(t+1).join('<i class="rod'+s+'"></i>') + new Array(o+1).join('<i class="dot'+s+'"></i>') + '</span>';
+  }
+  function $(id){ return document.getElementById(id); }
+
+  $('w-zehner').innerHTML = rods(1,0,true);
+  $('w-einer').innerHTML = rods(0,3,true);
+
+  /* Das Bild: 84 : 4 */
+  var boxes = '';
+  for (var i=0;i<4;i++) boxes += '<div class="box">' + rods(2,1) + '<span class="tot">21</span></div>';
+  $('bild').innerHTML =
+    '<div class="bild-row"><span class="lbl">84</span>' + rods(8,4) + '</div>' +
+    '<div class="arrow">↓ Verteile auf 4 Kisten.</div>' +
+    '<div class="boxes">' + boxes + '</div>' +
+    '<figcaption>In jeder Kiste: <span class="c1">2 Stangen = 20</span> und <span class="c2">1 Würfel = 1</span>. Zusammen: <span class="c3">21</span>.</figcaption>';
+
+  /* Beispiele */
+  function tree(n,d,p1,p2){
+    var r1=p1/d, r2=p2/d, f=n/d;
+    return '<div class="tree" role="group" aria-label="Rechenbaum">' +
+      '<div class="top">'+n+'</div>' +
+      '<svg class="legs" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><line x1="50" y1="0" x2="25" y2="30"/><line x1="50" y1="0" x2="75" y2="30"/></svg>' +
+      '<div class="pair"><div class="n t1">'+p1+'</div><div class="n t2">'+p2+'</div></div>' +
+      '<div class="pair gap"><div class="eq t1">'+p1+' : '+d+' = '+r1+'</div><div class="eq t2">'+p2+' : '+d+' = '+r2+'</div></div>' +
+      '<div class="sum t3">'+r1+' + '+r2+' = '+f+'</div></div>';
+  }
+  function say(n,d,p1,p2){
+    var r1=p1/d, r2=p2/d, f=n/d;
+    return '<div class="say-title">Sprich mit</div><ol class="say">' +
+      '<li>Ich zerlege '+n+' in <span class="c1">'+p1+'</span> und <span class="c2">'+p2+'</span>.</li>' +
+      '<li><span class="c1">'+p1+'</span> geteilt durch '+d+' ist <span class="c1">'+r1+'</span>.</li>' +
+      '<li><span class="c2">'+p2+'</span> geteilt durch '+d+' ist <span class="c2">'+r2+'</span>.</li>' +
+      '<li><span class="c1">'+r1+'</span> plus <span class="c2">'+r2+'</span> ist <span class="c3">'+f+'</span>.</li>' +
+      '<li>Also: '+n+' geteilt durch '+d+' ist <span class="c3">'+f+'</span>.</li></ol>';
+  }
+  var exHtml = '';
+  EX.forEach(function(e,i){
+    exHtml += '<article class="card ex-card"><h3>Beispiel '+(i+1)+'<small>'+e[0]+' : '+e[1]+'</small></h3>' +
+      tree(e[0],e[1],e[2],e[3]) + (e[4] ? '<div class="note">'+e[4]+'</div>' : '') + say(e[0],e[1],e[2],e[3]) + '</article>';
+  });
+  $('examples').innerHTML = exHtml;
+
+  /* Üben */
+  var levels = [
+    {title:'Übung 1', sub:'Die Teile sind gegeben. Rechne die drei Zeilen.', data:L1, free:false},
+    {title:'Übung 2', sub:'Die Teile sind gegeben. Ein Teil ist größer.', data:L2, free:false},
+    {title:'Übung 3', sub:'Zerlege selbst. Beide Teile musst du teilen können.', data:L3, free:true}
+  ];
+  var lvHtml = '';
+  levels.forEach(function(lv,li){
+    var tasks = '';
+    lv.data.forEach(function(t,ti){
+      var n=t[0], d=t[1];
+      var p1 = lv.free ? '<input id="p1-'+li+'-'+ti+'" data-k="p1" inputmode="numeric" autocomplete="off" aria-label="Teil 1">' : '<span class="chip t1" data-k="p1" data-val="'+t[2]+'">'+t[2]+'</span>';
+      var p2 = lv.free ? '<input id="p2-'+li+'-'+ti+'" data-k="p2" inputmode="numeric" autocomplete="off" aria-label="Teil 2">' : '<span class="chip t2" data-k="p2" data-val="'+t[3]+'">'+t[3]+'</span>';
+      var hint = lv.free ? '<details class="hint"><summary>Tipp</summary>Fange mit '+t[2]+' an.</details>' : '';
+      var m1 = lv.free ? '<span class="chip t1 mirror empty" data-m="p1">?</span>' : '<span class="chip t1">'+t[2]+'</span>';
+      var m2 = lv.free ? '<span class="chip t2 mirror empty" data-m="p2">?</span>' : '<span class="chip t2">'+t[3]+'</span>';
+      tasks +=
+        '<article class="card task" data-n="'+n+'" data-d="'+d+'">' +
+          '<div class="task-top"><span class="no">'+(ti+1)+'</span><span>'+n+' : '+d+'</span></div>' +
+          '<div class="line"><span class="lab">Zerlege</span>'+n+' = '+p1+' + '+p2+'<span class="mark" data-mark="l1"></span></div>' +
+          '<div class="line"><span class="lab">Teile</span>'+m1+' : '+d+' = <input id="r1-'+li+'-'+ti+'" data-k="r1" inputmode="numeric" autocomplete="off" aria-label="Ergebnis Teil 1"><span class="mark" data-mark="l2"></span></div>' +
+          '<div class="line"><span class="lab">Teile</span>'+m2+' : '+d+' = <input id="r2-'+li+'-'+ti+'" data-k="r2" inputmode="numeric" autocomplete="off" aria-label="Ergebnis Teil 2"><span class="mark" data-mark="l3"></span></div>' +
+          '<div class="line"><span class="lab">Plus</span><span class="chip t1 mirror empty" data-m="r1">?</span> + <span class="chip t2 mirror empty" data-m="r2">?</span> = <input id="f-'+li+'-'+ti+'" data-k="f" inputmode="numeric" autocomplete="off" aria-label="Ergebnis"><span class="mark" data-mark="l4"></span></div>' +
+          hint +
+          '<div class="act"><button class="btn" type="button" data-act="check">Prüfen</button><button class="btn ghost" type="button" data-act="reset">Löschen</button><span class="fb" role="status" aria-live="polite"></span></div>' +
+        '</article>';
+    });
+    lvHtml += '<div class="level"><div class="level-head"><h3>'+lv.title+'</h3><p>'+lv.sub+'</p></div><div class="tasks">'+tasks+'</div></div>';
+  });
+  $('levels').innerHTML = lvHtml;
+
+  function num(v){ v = String(v).trim(); return v === '' ? NaN : Number(v); }
+  function val(task,k){
+    var el = task.querySelector('[data-k="'+k+'"]');
+    if (!el) return NaN;
+    return el.tagName === 'INPUT' ? num(el.value) : Number(el.dataset.val);
+  }
+  function mirror(task){
+    task.querySelectorAll('[data-m]').forEach(function(s){
+      var v = val(task, s.dataset.m);
+      var ok = !isNaN(v);
+      s.textContent = ok ? v : '?';
+      s.classList.toggle('empty', !ok);
+    });
+  }
+  function setLine(task, line, keys, state){
+    keys.forEach(function(k){
+      var el = task.querySelector('[data-k="'+k+'"]');
+      if (el && el.tagName === 'INPUT'){ el.classList.remove('ok','bad'); if (state) el.classList.add(state); }
+    });
+    var m = task.querySelector('[data-mark="'+line+'"]');
+    if (!m) return;
+    var hasInput = keys.some(function(k){ var el = task.querySelector('[data-k="'+k+'"]'); return el && el.tagName === 'INPUT'; });
+    m.className = 'mark';
+    m.textContent = '';
+    m.removeAttribute('aria-label');
+    if (state && hasInput){
+      m.classList.add(state);
+      m.textContent = state === 'ok' ? '✓' : '✗';
+      m.setAttribute('aria-label', state === 'ok' ? 'richtig' : 'falsch');
+    }
+  }
+  function check(task){
+    var n = Number(task.dataset.n), d = Number(task.dataset.d);
+    var p1=val(task,'p1'), p2=val(task,'p2'), r1=val(task,'r1'), r2=val(task,'r2'), f=val(task,'f');
+    var st = {l1:null,l2:null,l3:null,l4:null}, msgs = [];
+
+    if (!isNaN(p1) && !isNaN(p2)){
+      if (p1<=0 || p2<=0 || p1+p2!==n){ st.l1='bad'; msgs.push('Die zwei Teile ergeben nicht '+n+'.'); }
+      else if (p1%d!==0 || p2%d!==0){ st.l1='bad'; msgs.push('Ein Teil lässt sich nicht gut teilen. Zerlege neu.'); }
+      else st.l1='ok';
+    }
+    if (st.l1==='ok'){
+      if (!isNaN(r1)){ if (r1===p1/d) st.l2='ok'; else { st.l2='bad'; msgs.push('Rechne '+p1+' : '+d+' noch einmal.'); } }
+      if (!isNaN(r2)){ if (r2===p2/d) st.l3='ok'; else { st.l3='bad'; msgs.push('Rechne '+p2+' : '+d+' noch einmal.'); } }
+    }
+    if (!isNaN(f)){
+      if (st.l2==='ok' && st.l3==='ok'){
+        if (f===r1+r2) st.l4='ok'; else { st.l4='bad'; msgs.push('Rechne das Plus noch einmal.'); }
+      } else if (!isNaN(r1) && !isNaN(r2) && f!==r1+r2){
+        st.l4='bad'; msgs.push('Rechne das Plus noch einmal.');
+      }
+    }
+    setLine(task,'l1',['p1','p2'],st.l1);
+    setLine(task,'l2',['r1'],st.l2);
+    setLine(task,'l3',['r2'],st.l3);
+    setLine(task,'l4',['f'],st.l4);
+
+    var fb = task.querySelector('.fb');
+    fb.className = 'fb';
+    var allOk = st.l1==='ok' && st.l2==='ok' && st.l3==='ok' && st.l4==='ok';
+    var anyBad = ['l1','l2','l3','l4'].some(function(k){ return st[k]==='bad'; });
+    if (allOk){ fb.classList.add('ok'); fb.textContent = '✓ Richtig! ' + n + ' : ' + d + ' = ' + (n/d) + '.'; }
+    else if (anyBad){ fb.classList.add('bad'); fb.textContent = 'Noch nicht. ' + msgs[0]; }
+    else { fb.textContent = 'Fülle alle Felder aus.'; }
+  }
+  function reset(task){
+    task.querySelectorAll('input').forEach(function(i){ i.value=''; i.classList.remove('ok','bad'); });
+    task.querySelectorAll('.mark').forEach(function(m){ m.className='mark'; m.textContent=''; });
+    var fb = task.querySelector('.fb'); fb.className='fb'; fb.textContent='';
+    mirror(task);
+  }
+
+  $('levels').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var task = b.closest('.task');
+    if (b.dataset.act === 'check') check(task); else reset(task);
+  });
+  $('levels').addEventListener('input', function(e){
+    var i = e.target;
+    if (i.tagName !== 'INPUT') return;
+    i.value = i.value.replace(/\D/g,'').slice(0,3);
+    i.classList.remove('ok','bad');
+    mirror(i.closest('.task'));
+  });
+  $('levels').addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') check(e.target.closest('.task'));
+  });
+
+  /* Lösungen */
+  var sol = '';
+  function solLine(n,d,p1){
+    var p2 = n-p1;
+    return '<li>'+n+' : '+d+' → '+p1+' : '+d+' = '+(p1/d)+', '+p2+' : '+d+' = '+(p2/d)+', '+(p1/d)+' + '+(p2/d)+' = <b>'+(n/d)+'</b></li>';
+  }
+  levels.forEach(function(lv){
+    sol += '<p><b>'+lv.title+'</b></p><ul>' + lv.data.map(function(t){ return solLine(t[0],t[1],t[2]); }).join('') + '</ul>';
+  });
+  sol += '<p class="muted">Bei Übung 3 sind andere Zerlegungen richtig, wenn beide Teile durch den Teiler teilbar sind. Die Prüfung im Blatt erkennt das.</p>';
+  $('loesungen').innerHTML = sol;
+})();
+</script>
+
+</body></html>
